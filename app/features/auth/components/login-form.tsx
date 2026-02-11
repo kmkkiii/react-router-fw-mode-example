@@ -1,74 +1,60 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router';
-import { authClient } from '~/shared/auth/auth.client';
+import type { SubmissionResult } from '@conform-to/react';
+import { getFormProps, getInputProps, useForm } from '@conform-to/react';
+import { parseWithZod } from '@conform-to/zod';
+import { Form, useNavigation } from 'react-router';
+import { loginSchema } from '../schemas/login-schema';
 
-export function LoginForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+type LoginFormProps = {
+  lastResult?: SubmissionResult | null;
+};
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
+export function LoginForm({ lastResult }: LoginFormProps) {
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === 'submitting';
 
-    try {
-      const result = await authClient.signIn.email({
-        email,
-        password,
-      });
-
-      if (result.error) {
-        setError(result.error.message || 'ログインに失敗しました');
-        setLoading(false);
-        return;
-      }
-
-      navigate('/todos');
-    } catch (_err) {
-      setError('予期せぬエラーが発生しました');
-      setLoading(false);
-    }
-  }
+  const [form, fields] = useForm({
+    lastResult,
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema: loginSchema });
+    },
+    shouldValidate: 'onBlur',
+    shouldRevalidate: 'onInput',
+  });
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <Form method="post" {...getFormProps(form)} className="space-y-4">
       <div>
-        <label htmlFor="email" className="block text-sm font-medium">
+        <label htmlFor={fields.email.id} className="block text-sm font-medium">
           メールアドレス
         </label>
         <input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
+          {...getInputProps(fields.email, { type: 'email' })}
           className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
         />
+        {fields.email.errors && (
+          <div className="mt-1 text-sm text-red-600">{fields.email.errors[0]}</div>
+        )}
       </div>
       <div>
-        <label htmlFor="password" className="block text-sm font-medium">
+        <label htmlFor={fields.password.id} className="block text-sm font-medium">
           パスワード
         </label>
         <input
-          id="password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
+          {...getInputProps(fields.password, { type: 'password' })}
           className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
         />
+        {fields.password.errors && (
+          <div className="mt-1 text-sm text-red-600">{fields.password.errors[0]}</div>
+        )}
       </div>
-      {error && <div className="text-red-600 text-sm">{error}</div>}
+      {form.errors && <div className="text-red-600 text-sm">{form.errors[0]}</div>}
       <button
         type="submit"
-        disabled={loading}
+        disabled={isSubmitting}
         className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
       >
-        {loading ? 'ログイン中...' : 'ログイン'}
+        {isSubmitting ? 'ログイン中...' : 'ログイン'}
       </button>
-    </form>
+    </Form>
   );
 }

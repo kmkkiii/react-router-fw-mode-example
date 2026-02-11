@@ -99,7 +99,9 @@ describe('Todos Route', () => {
       });
 
       expect(todoRepository.createTodo).toHaveBeenCalledWith('user-1', 'New Todo');
-      expect(result).toBeNull();
+      expect(result).toEqual({
+        lastResult: expect.objectContaining({ initialValue: null }),
+      });
     });
 
     it('create intent で空のタイトルの場合は作成しない', async () => {
@@ -120,7 +122,9 @@ describe('Todos Route', () => {
       });
 
       expect(todoRepository.createTodo).not.toHaveBeenCalled();
-      expect(result).toBeNull();
+      expect(result).toEqual({
+        lastResult: expect.objectContaining({ status: 'error' }),
+      });
     });
 
     it('toggle intent で Todo を切り替える', async () => {
@@ -141,7 +145,7 @@ describe('Todos Route', () => {
       });
 
       expect(todoRepository.toggleTodo).toHaveBeenCalledWith('todo-1', 'user-1');
-      expect(result).toBeNull();
+      expect(result).toEqual({ lastResult: null });
     });
 
     it('delete intent で Todo を削除する', async () => {
@@ -162,7 +166,7 @@ describe('Todos Route', () => {
       });
 
       expect(todoRepository.deleteTodo).toHaveBeenCalledWith('todo-1', 'user-1');
-      expect(result).toBeNull();
+      expect(result).toEqual({ lastResult: null });
     });
 
     it('不明な intent の場合は null を返す', async () => {
@@ -181,7 +185,7 @@ describe('Todos Route', () => {
         unstable_pattern: '',
       });
 
-      expect(result).toBeNull();
+      expect(result).toEqual({ lastResult: null });
     });
   });
 });

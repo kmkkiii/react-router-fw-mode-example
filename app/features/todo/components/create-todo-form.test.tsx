@@ -13,10 +13,9 @@ describe('CreateTodoForm', () => {
     expect(intentInput).toHaveAttribute('type', 'hidden');
     expect(intentInput).toHaveValue('create');
 
-    // title input (required)
+    // title input
     const titleInput = screen.getByPlaceholderText('新しいTodoを入力...');
     expect(titleInput).toBeInTheDocument();
-    expect(titleInput).toHaveAttribute('required');
     expect(titleInput).toHaveAttribute('name', 'title');
 
     // submit button

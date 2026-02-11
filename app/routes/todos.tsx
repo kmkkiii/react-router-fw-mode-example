@@ -1,5 +1,6 @@
+import { parseWithZod } from '@conform-to/zod';
 import type { ActionFunctionArgs, LoaderFunctionArgs } from 'react-router';
-import { redirect, useLoaderData } from 'react-router';
+import { redirect, useActionData, useLoaderData } from 'react-router';
 import {
   createTodo,
   deleteTodo,
@@ -8,6 +9,7 @@ import {
 } from '~/entities/todo/repository.server';
 import { CreateTodoForm } from '~/features/todo/components/create-todo-form';
 import { TodoList } from '~/features/todo/components/todo-list';
+import { createTodoSchema } from '~/features/todo/schemas/create-todo-schema';
 import { authClient } from '~/shared/auth/auth.client';
 import { auth } from '~/shared/auth/auth.server';
 
@@ -39,33 +41,37 @@ export async function action({ request }: ActionFunctionArgs) {
 
   switch (intent) {
     case 'create': {
-      const title = formData.get('title');
-      if (typeof title === 'string' && title.trim()) {
-        await createTodo(session.user.id, title.trim());
+      const submission = parseWithZod(formData, { schema: createTodoSchema });
+
+      if (submission.status !== 'success') {
+        return { lastResult: submission.reply() };
       }
-      return null;
+
+      await createTodo(session.user.id, submission.value.title);
+      return { lastResult: submission.reply({ resetForm: true }) };
     }
     case 'toggle': {
       const todoId = formData.get('todoId');
       if (typeof todoId === 'string') {
         await toggleTodo(todoId, session.user.id);
       }
-      return null;
+      return { lastResult: null };
     }
     case 'delete': {
       const todoId = formData.get('todoId');
       if (typeof todoId === 'string') {
         await deleteTodo(todoId, session.user.id);
       }
-      return null;
+      return { lastResult: null };
     }
     default:
-      return null;
+      return { lastResult: null };
   }
 }
 
 export default function Todos() {
   const { todos, user } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
 
   async function handleSignOut() {
     await authClient.signOut();
@@ -90,7 +96,7 @@ export default function Todos() {
             </button>
           </div>
           <div className="mb-6">
-            <CreateTodoForm />
+            <CreateTodoForm lastResult={actionData?.lastResult} />
           </div>
           <TodoList todos={todos} />
         </div>
