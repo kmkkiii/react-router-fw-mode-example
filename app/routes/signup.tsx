@@ -1,4 +1,4 @@
-import { parseWithZod } from '@conform-to/zod';
+import { parseWithZod } from '@conform-to/zod/v4';
 import type { ActionFunctionArgs, LoaderFunctionArgs } from 'react-router';
 import { Link, redirect, useActionData } from 'react-router';
 import { SignupForm } from '~/features/auth/components/signup-form';

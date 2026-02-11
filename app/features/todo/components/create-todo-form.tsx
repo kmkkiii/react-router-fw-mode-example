@@ -1,6 +1,6 @@
 import type { SubmissionResult } from '@conform-to/react';
 import { getFormProps, getInputProps, useForm } from '@conform-to/react';
-import { parseWithZod } from '@conform-to/zod';
+import { parseWithZod } from '@conform-to/zod/v4';
 import { Form } from 'react-router';
 import { createTodoSchema } from '../schemas/create-todo-schema';
 

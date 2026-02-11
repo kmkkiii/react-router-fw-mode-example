@@ -111,7 +111,7 @@ app/
 - Conform + Zod でサーバー/クライアント両方でバリデーションを実行
 - スキーマは `app/features/*/schemas/` に配置
 - `useForm` で onBlur/onInput バリデーションを実装
-- `parseWithZod` でサーバーサイドバリデーション
+- `parseWithZod` は `@conform-to/zod/v4` から import（Zod v4 対応）
 - action は `{ lastResult: submission.reply() }` を返す
 - フォームコンポーネントは `lastResult` を props で受け取る
 
@@ -121,4 +121,4 @@ app/
 - **データベース**: PostgreSQL の実行が必要です（ローカル開発には `docker compose up` を使用）
 - **環境変数**: `.env.example` を `.env` にコピーして `DATABASE_URL` を設定してください
 - **テストファイル**: `.test.ts(x)` 拡張子を使用しないとルートとして扱われてしまいます
-- **Zod バージョン**: v3.23 を使用（@conform-to/zod との互換性のため、v4 は非対応）
+- **Conform + Zod v4**: `@conform-to/zod/v4` から import することで Zod v4 を使用可能

@@ -1,4 +1,4 @@
-import { parseWithZod } from '@conform-to/zod';
+import { parseWithZod } from '@conform-to/zod/v4';
 import type { ActionFunctionArgs, LoaderFunctionArgs } from 'react-router';
 import { redirect, useActionData, useLoaderData } from 'react-router';
 import {
