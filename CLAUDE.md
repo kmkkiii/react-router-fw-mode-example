@@ -43,6 +43,7 @@ npx vitest app/path/to/file.test.ts
 - **フレームワーク**: React Router v7 + SSR (サーバーサイドレンダリング)
 - **認証**: better-auth (メール/パスワード)
 - **データベース**: PostgreSQL + Drizzle ORM
+- **フォームバリデーション**: Conform + Zod (サーバー/クライアント共有スキーマ)
 - **スタイリング**: Tailwind CSS v4
 - **Lint/フォーマット**: Biome (ESLint + Prettier の代替)
 - **テスト**: Vitest + React Testing Library
@@ -59,9 +60,11 @@ app/
 │       └── types.ts                # 型定義
 ├── features/           # 機能モジュール（UI とロジック）
 │   ├── auth/
-│   │   └── components/            # ログイン/サインアップフォーム
+│   │   ├── components/            # ログイン/サインアップフォーム
+│   │   └── schemas/               # バリデーションスキーマ (Zod)
 │   └── todo/
-│       └── components/            # Todo UI コンポーネント
+│       ├── components/            # Todo UI コンポーネント
+│       └── schemas/               # バリデーションスキーマ (Zod)
 ├── shared/             # 共有インフラ
 │   ├── auth/
 │   │   ├── auth.server.ts         # サーバーサイド認証インスタンス
@@ -104,9 +107,18 @@ app/
 - サーバーサイドモジュール（db, auth）は `vi.mock()` でモック化
 - 全てのテストファイルは `*.test.ts` または `*.test.tsx` 拡張子が必須
 
+**6. フォームバリデーション**:
+- Conform + Zod でサーバー/クライアント両方でバリデーションを実行
+- スキーマは `app/features/*/schemas/` に配置
+- `useForm` で onBlur/onInput バリデーションを実装
+- `parseWithZod` でサーバーサイドバリデーション
+- action は `{ lastResult: submission.reply() }` を返す
+- フォームコンポーネントは `lastResult` を props で受け取る
+
 ## 重要な注意事項
 
 - **パスエイリアス**: `~/` は `app/` にマッピングされます（tsconfig.json で設定）
 - **データベース**: PostgreSQL の実行が必要です（ローカル開発には `docker compose up` を使用）
 - **環境変数**: `.env.example` を `.env` にコピーして `DATABASE_URL` を設定してください
 - **テストファイル**: `.test.ts(x)` 拡張子を使用しないとルートとして扱われてしまいます
+- **Zod バージョン**: v3.23 を使用（@conform-to/zod との互換性のため、v4 は非対応）
